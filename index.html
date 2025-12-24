@@ -15,6 +15,15 @@
 <video id="output" controls style="display:none; max-width: 100%;"></video>
 
 <script>
+    const mimeTypeMp4 = [
+        'video/mp4;codecs=avc1,mp4a.40.2',
+        'video/mp4;codecs=vp9,opus',
+        'video/mp4;codecs=vp8,opus',
+        'video/webm;codecs=avc1,mp4a.40.2',
+        'video/webm;codecs=vp9,opus',
+        'video/webm;codecs=vp8,opus',
+    ];
+
     document.getElementById('convertBtn').addEventListener('click', async () => {
         const fileInput = document.getElementById('imageInput');
         const file = fileInput.files[0];
@@ -35,10 +44,23 @@
 
         // MediaRecorder로 녹화
         const stream = canvas.captureStream(15);
+        let mimeType = '';
+        mimeTypeMp4.some(function(e){
+            if(MediaRecorder.isTypeSupported(e)) {
+                mimeType = e;
+                return true;
+            }
+        });
+
+        if(!MediaRecorder.isTypeSupported(mimeType)) {
+            alert('MP4 mimeType이 지원되지 않습니다. 다른 브라우저를 사용해 주세요.');
+            return;
+        }
+
         const mediaRecorder = new MediaRecorder(stream, {
             mimeType: 'video/mp4;codecs=avc1,mp4a.40.2',
             // 최대 500MB 파일을 생성할 수 있도록 비트레이트 설정
-            videoBitsPerSecond: 400_000_000
+            videoBitsPerSecond: 40000000
         });
 
         const chunks = [];
